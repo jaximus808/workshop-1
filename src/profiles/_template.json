@@ -1,0 +1,13 @@
+{
+  "name": "Your Name",
+  "github": "your-github-username",
+  "role": "Student · Your School",
+  "bio": "One or two sentences about you. What do you work on, what are you learning?",
+  "favorite": "TypeScript",
+  "building": "What you want to build next.",
+  "emoji": "🚀",
+  "links": {
+    "website": "",
+    "linkedin": ""
+  }
+}

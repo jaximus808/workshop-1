@@ -1,165 +1,229 @@
-import { checklist, profile, projects } from "@/data/profile";
-import { ContributionGraph } from "@/components/ContributionGraph";
-import { ProjectCard } from "@/components/ProjectCard";
-import { Sidebar } from "@/components/Sidebar";
-import { CheckCircleFill, Circle, MarkGithub, Pin, Repo } from "@/components/icons";
+import Link from "next/link";
+import { event } from "@/data/event";
+import { getProfiles } from "@/lib/profiles";
+import { CodeBlock } from "@/components/CodeBlock";
+import { Lifecycle } from "@/components/Lifecycle";
+import { ProfileCard } from "@/components/ProfileCard";
+import { CheckCircleFill, MarkGithub, RepoForked } from "@/components/icons";
 
-const tabs = [
-  { label: "Overview", count: null, active: true },
-  { label: "Repositories", count: profile.stats.repos, active: false },
-  { label: "Projects", count: projects.length, active: false },
-  { label: "Stars", count: 0, active: false },
+const steps = [
+  {
+    title: "Start from fresh main",
+    body: "Starting behind main means your first PR is already out of date. One task, one branch.",
+    code: `git switch main
+git pull
+git switch -c feat/add-<your-username>`,
+  },
+  {
+    title: "Add your profile file",
+    body: "Copy the template. The file name must be your GitHub username in lowercase. You only touch your own file, so nobody conflicts with anybody.",
+    code: `cp src/profiles/_template.json src/profiles/<your-username>.json
+# edit it, then check it:
+npm run validate:profiles
+npm run dev   # http://localhost:3000`,
+  },
+  {
+    title: "Commit like a human wrote it",
+    body: "type(scope): imperative summary. One logical change per commit.",
+    code: `git add src/profiles/<your-username>.json
+git commit -m "feat(profiles): add <your-username>"`,
+  },
+  {
+    title: "Push and open a pull request",
+    body: "Pushed code is backed-up code. Fill in the PR template: what changed, why, how to test.",
+    code: `git push -u origin feat/add-<your-username>
+# then open the PR on GitHub`,
+  },
+  {
+    title: "Watch CI and the preview deployment",
+    body: "GitHub Actions validates your file, lints, and builds. Vercel comments a preview link on the PR. Open it and find your card.",
+    code: null,
+  },
+  {
+    title: "Get a review, then squash & merge",
+    body: "One approval plus green checks unlocks the merge button. Squash keeps main linear: one PR, one commit. Delete the branch. It did its job.",
+    code: null,
+  },
+];
+
+const rules = [
+  "Branch from fresh main. One task, one branch",
+  "Commit messages: type(scope): summary",
+  "PRs small, described, self-reviewed. Under ~400 lines",
+  "Sync with main continuously. Conflicts are a distance problem",
+  "Never rebase or force-push shared history",
+  "Never push secrets. Never push straight to main",
+  "Let CI be the mean reviewer, so humans can be the thoughtful one",
 ];
 
 export default function Home() {
-  const done = checklist.filter((c) => c.done).length;
-  const pct = Math.round((done / checklist.length) * 100);
+  const profiles = getProfiles();
 
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border bg-header">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <MarkGithub className="size-8" />
-          <span className="text-sm font-semibold">{profile.handle}</span>
-          <a
-            href={profile.links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto rounded-md border border-border px-3 py-1 text-sm font-medium hover:bg-border/40"
-          >
-            View on GitHub
-          </a>
-        </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 text-sm">
-          {tabs.map((t) => (
-            <span
-              key={t.label}
-              className={`flex items-center gap-2 border-b-2 px-3 py-2 ${
-                t.active
-                  ? "border-[#fd8c73] font-semibold"
-                  : "border-transparent text-muted"
-              }`}
+          <MarkGithub className="size-7" />
+          <span className="text-sm font-semibold">
+            {event.chapter} · {event.title}
+          </span>
+          <nav className="ml-auto flex items-center gap-4 text-sm">
+            <a href="#add" className="hidden text-muted hover:text-foreground sm:inline">
+              Add yourself
+            </a>
+            <a href="#wall" className="hidden text-muted hover:text-foreground sm:inline">
+              Wall
+            </a>
+            <a
+              href={event.repo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-border px-3 py-1 font-medium hover:bg-border/40"
             >
-              {t.label}
-              {t.count !== null && (
-                <span className="rounded-full bg-border/60 px-2 text-xs font-medium text-foreground">
-                  {t.count}
-                </span>
-              )}
-            </span>
-          ))}
-        </nav>
+              Repo
+            </a>
+          </nav>
+        </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 md:grid-cols-[296px_1fr]">
-        <Sidebar />
-
-        <div className="flex min-w-0 flex-col gap-6">
-          {/* Profile README */}
-          <section className="rounded-md border border-border">
-            <div className="flex items-center gap-2 border-b border-border bg-canvas-subtle px-4 py-2 text-xs text-muted">
-              <Repo />
-              <span className="font-mono">
-                {profile.handle}/README.md
-              </span>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-10">
+        {/* Hero */}
+        <section className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <p className="font-mono text-sm text-accent">&lt;/&gt; {event.chapter}</p>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+              {event.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-lg text-muted">{event.tagline}</p>
+            <p className="mt-5 max-w-2xl text-base">
+              This site is the hands-on part. Add your profile in a branch, open
+              a pull request, watch CI go green, get it merged, and you show up
+              on the wall below. Every card here came in through a PR.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href="#add"
+                className="rounded-md bg-success px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+              >
+                Add yourself
+              </a>
+              <a
+                href={event.slides}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-border/40"
+              >
+                Slides
+              </a>
             </div>
-            <div className="px-6 py-5">
-              <h2 className="text-2xl font-semibold">
-                Hi, I&apos;m {profile.name.split(" ")[0]} 👋
-              </h2>
-              <p className="mt-2 text-base text-muted">{profile.tagline}</p>
-              <h3 className="mt-6 border-b border-border pb-1 text-lg font-semibold">
-                🔭 Currently
-              </h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                {profile.currentFocus.map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-              <h3 className="mt-6 border-b border-border pb-1 text-lg font-semibold">
-                📫 Reach me
-              </h3>
-              <p className="mt-2 text-sm">
-                Email{" "}
-                <a href={`mailto:${profile.email}`} className="text-accent hover:underline">
-                  {profile.email}
-                </a>{" "}
-                or find me on{" "}
-                <a
-                  href={profile.links.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent hover:underline"
-                >
-                  GitHub
-                </a>
-                .
-              </p>
+          </div>
+          <dl className="grid grid-cols-2 gap-4 md:grid-cols-1">
+            <div className="rounded-md border border-border p-4">
+              <dt className="text-xs uppercase tracking-wide text-muted">On the wall</dt>
+              <dd className="mt-1 text-3xl font-semibold">{profiles.length}</dd>
             </div>
-          </section>
-
-          {/* Pinned */}
-          <section>
-            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
-              <Pin className="text-muted" /> Pinned
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {projects.map((p) => (
-                <ProjectCard key={p.name} project={p} />
-              ))}
+            <div className="rounded-md border border-border p-4">
+              <dt className="text-xs uppercase tracking-wide text-muted">Ways in</dt>
+              <dd className="mt-1 flex items-center gap-2 text-lg font-semibold">
+                <RepoForked className="text-muted" /> Pull request
+              </dd>
             </div>
-          </section>
+          </dl>
+        </section>
 
-          <ContributionGraph />
+        {/* Lifecycle */}
+        <section className="rounded-md border border-border p-5">
+          <h2 className="text-base font-semibold">The pull request lifecycle</h2>
+          <p className="mb-4 mt-1 text-sm text-muted">
+            A PR is a conversation, not a formality. The diff is the first message.
+          </p>
+          <Lifecycle />
+        </section>
 
-          {/* Profile optimization */}
-          <section className="rounded-md border border-border">
-            <div className="border-b border-border bg-canvas-subtle px-4 py-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold">Profile optimization</h2>
-                <span className="text-sm text-muted">
-                  {done}/{checklist.length} complete
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-muted">
-                Setting up a professional GitHub profile to showcase future
-                projects.
-              </p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-border/60">
-                <div
-                  className="h-full rounded-full bg-success"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            </div>
-            <ul className="divide-y divide-border">
-              {checklist.map((item) => (
-                <li key={item.label} className="flex gap-3 px-4 py-3">
-                  {item.done ? (
-                    <CheckCircleFill className="mt-0.5 text-success" />
-                  ) : (
-                    <Circle className="mt-0.5 text-muted" />
-                  )}
+        {/* Steps */}
+        <section id="add" className="scroll-mt-20">
+          <h2 className="text-2xl font-semibold">Add yourself</h2>
+          <p className="mt-1 text-muted">
+            Six steps. Replace <code className="font-mono text-sm">&lt;your-username&gt;</code>{" "}
+            with your GitHub username.
+          </p>
+          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
+            {steps.map((s, i) => (
+              <li key={s.title} className="flex flex-col rounded-md border border-border p-5">
+                <div className="flex items-start gap-3">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
+                    {i + 1}
+                  </span>
                   <div>
-                    <p
-                      className={`text-sm font-medium ${
-                        item.done ? "text-muted line-through" : ""
-                      }`}
-                    >
-                      {item.label}
-                    </p>
-                    <p className="text-sm text-muted">{item.detail}</p>
+                    <h3 className="text-base font-semibold">{s.title}</h3>
+                    <p className="mt-1 text-sm text-muted">{s.body}</p>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
+                </div>
+                {s.code && (
+                  <div className="mt-4">
+                    <CodeBlock>{s.code}</CodeBlock>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Wall */}
+        <section id="wall" className="scroll-mt-20">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">The wall</h2>
+              <p className="mt-1 text-muted">
+                Everyone whose PR has been merged to main.
+              </p>
+            </div>
+            <a
+              href={`${event.repo}/pulls`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-accent hover:underline"
+            >
+              Open PRs →
+            </a>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {profiles.map((p) => (
+              <ProfileCard key={p.github} profile={p} />
+            ))}
+            <a
+              href="#add"
+              className="flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed border-border p-4 text-center text-muted hover:border-accent hover:text-accent"
+            >
+              <span className="text-3xl">+</span>
+              <span className="mt-1 text-sm font-medium">This spot is yours</span>
+              <span className="text-xs">Open a PR to claim it</span>
+            </a>
+          </div>
+        </section>
+
+        {/* Rules */}
+        <section className="rounded-md border border-border">
+          <div className="border-b border-border bg-canvas-subtle px-5 py-3">
+            <h2 className="text-base font-semibold">The rules that matter</h2>
+          </div>
+          <ul className="divide-y divide-border">
+            {rules.map((r) => (
+              <li key={r} className="flex items-start gap-3 px-5 py-3 text-sm">
+                <CheckCircleFill className="mt-0.5 shrink-0 text-success" />
+                {r}
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted">
-        Built with Next.js and Tailwind. Edit{" "}
-        <code className="font-mono">src/data/profile.ts</code> to make it yours.
+        Built during the {event.chapter} {event.title}. Every profile on this
+        page is a merged pull request.{" "}
+        <Link href="/p/jaxonpoentis" className="hover:text-accent hover:underline">
+          Organizer
+        </Link>
       </footer>
     </div>
   );

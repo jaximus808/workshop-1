@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { profile } from "@/data/profile";
+import { event } from "@/data/event";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${profile.name} (${profile.handle})`,
-  description: profile.tagline,
+  title: `${event.chapter} ${event.title}`,
+  description: event.tagline,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

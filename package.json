@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate:profiles": "node scripts/validate-profiles.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
