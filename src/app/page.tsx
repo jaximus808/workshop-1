@@ -61,18 +61,26 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-border bg-header">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+      <header className="sticky top-0 z-10 border-b border-border bg-header">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
           <MarkGithub className="size-7" />
           <span className="text-sm font-semibold">
             {event.chapter} · {event.title}
           </span>
           <nav className="ml-auto flex items-center gap-4 text-sm">
-            <a href="#add" className="hidden text-muted hover:text-foreground sm:inline">
-              Add yourself
-            </a>
             <a href="#wall" className="hidden text-muted hover:text-foreground sm:inline">
               Wall
+            </a>
+            <a href="#add" className="hidden text-muted hover:text-foreground sm:inline">
+              How to add yourself
+            </a>
+            <a
+              href={event.slides}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden text-muted hover:text-foreground sm:inline"
+            >
+              Slides
             </a>
             <a
               href={event.repo}
@@ -86,135 +94,134 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-10">
-        {/* Hero */}
-        <section className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
-          <div>
-            <p className="font-mono text-sm text-accent">&lt;/&gt; {event.chapter}</p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
-              {event.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-lg text-muted">{event.tagline}</p>
-            <p className="mt-5 max-w-2xl text-base">
-              This site is the hands-on part. Add your profile in a branch, open
-              a pull request, watch CI go green, get it merged, and you show up
-              on the wall below. Every card here came in through a PR.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+      <main className="flex flex-1 flex-col">
+        {/* Wall — the main event */}
+        <section id="wall" className="scroll-mt-16 border-b border-border bg-canvas-subtle">
+          <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:py-14">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="font-mono text-sm text-accent">
+                  &lt;/&gt; {event.chapter} · {event.title}
+                </p>
+                <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-6xl">
+                  The wall
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-muted">
+                  Everyone here shipped a pull request today. Add your profile
+                  in a branch, get it merged, and your card shows up.
+                </p>
+              </div>
+              <div className="flex items-end gap-6">
+                <div className="text-right">
+                  <div className="text-5xl font-semibold leading-none tabular-nums sm:text-7xl">
+                    {profiles.length}
+                  </div>
+                  <div className="mt-2 flex items-center justify-end gap-1.5 text-sm text-muted">
+                    <RepoForked /> merged
+                  </div>
+                </div>
+                <a
+                  href="#add"
+                  className="rounded-md bg-success px-5 py-3 text-base font-semibold text-white hover:opacity-90"
+                >
+                  Add yourself
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {profiles.map((p) => (
+                <ProfileCard key={p.github} profile={p} />
+              ))}
               <a
                 href="#add"
-                className="rounded-md bg-success px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                className="flex min-h-56 flex-col items-center justify-center rounded-md border-2 border-dashed border-border p-6 text-center text-muted transition-colors hover:border-accent hover:text-accent"
               >
-                Add yourself
+                <span className="text-5xl leading-none">+</span>
+                <span className="mt-3 text-lg font-semibold">This spot is yours</span>
+                <span className="mt-1 text-sm">Open a PR to claim it</span>
               </a>
+            </div>
+
+            <div className="mt-6 text-right">
+              <a
+                href={`${event.repo}/pulls`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-accent hover:underline"
+              >
+                See who&apos;s in the queue: open PRs →
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Instructions — everything you need to get on the wall */}
+        <section id="add" className="scroll-mt-16">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-12">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-3xl font-semibold tracking-tight">How to add yourself</h2>
+                <p className="mt-2 max-w-2xl text-muted">
+                  Six steps from a fresh clone to a card on the wall. Replace{" "}
+                  <code className="font-mono text-sm">&lt;your-username&gt;</code>{" "}
+                  with your GitHub username. The slides cover the why; this
+                  covers the how.
+                </p>
+              </div>
               <a
                 href={event.slides}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-border/40"
               >
-                Slides
+                Open the slides ↗
               </a>
             </div>
-          </div>
-          <dl className="grid grid-cols-2 gap-4 md:grid-cols-1">
-            <div className="rounded-md border border-border p-4">
-              <dt className="text-xs uppercase tracking-wide text-muted">On the wall</dt>
-              <dd className="mt-1 text-3xl font-semibold">{profiles.length}</dd>
-            </div>
-            <div className="rounded-md border border-border p-4">
-              <dt className="text-xs uppercase tracking-wide text-muted">Ways in</dt>
-              <dd className="mt-1 flex items-center gap-2 text-lg font-semibold">
-                <RepoForked className="text-muted" /> Pull request
-              </dd>
-            </div>
-          </dl>
-        </section>
 
-        {/* Lifecycle */}
-        <section className="rounded-md border border-border p-5">
-          <h2 className="text-base font-semibold">The pull request lifecycle</h2>
-          <p className="mb-4 mt-1 text-sm text-muted">
-            A PR is a conversation, not a formality. The diff is the first message.
-          </p>
-          <Lifecycle />
-        </section>
-
-        {/* Steps */}
-        <section id="add" className="scroll-mt-20">
-          <h2 className="text-2xl font-semibold">Add yourself</h2>
-          <p className="mt-1 text-muted">
-            Six steps. Replace <code className="font-mono text-sm">&lt;your-username&gt;</code>{" "}
-            with your GitHub username.
-          </p>
-          <ol className="mt-6 grid gap-4 lg:grid-cols-2">
-            {steps.map((s, i) => (
-              <li key={s.title} className="flex flex-col rounded-md border border-border p-5">
-                <div className="flex items-start gap-3">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="text-base font-semibold">{s.title}</h3>
-                    <p className="mt-1 text-sm text-muted">{s.body}</p>
-                  </div>
-                </div>
-                {s.code && (
-                  <div className="mt-4">
-                    <CodeBlock>{s.code}</CodeBlock>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* Wall */}
-        <section id="wall" className="scroll-mt-20">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold">The wall</h2>
-              <p className="mt-1 text-muted">
-                Everyone whose PR has been merged to main.
+            <div className="rounded-md border border-border p-5">
+              <h3 className="text-base font-semibold">The pull request lifecycle</h3>
+              <p className="mb-4 mt-1 text-sm text-muted">
+                A PR is a conversation, not a formality. The diff is the first message.
               </p>
+              <Lifecycle />
             </div>
-            <a
-              href={`${event.repo}/pulls`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-accent hover:underline"
-            >
-              Open PRs →
-            </a>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((p) => (
-              <ProfileCard key={p.github} profile={p} />
-            ))}
-            <a
-              href="#add"
-              className="flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed border-border p-4 text-center text-muted hover:border-accent hover:text-accent"
-            >
-              <span className="text-3xl">+</span>
-              <span className="mt-1 text-sm font-medium">This spot is yours</span>
-              <span className="text-xs">Open a PR to claim it</span>
-            </a>
-          </div>
-        </section>
 
-        {/* Rules */}
-        <section className="rounded-md border border-border">
-          <div className="border-b border-border bg-canvas-subtle px-5 py-3">
-            <h2 className="text-base font-semibold">The rules that matter</h2>
+            <ol className="grid gap-4 lg:grid-cols-2">
+              {steps.map((s, i) => (
+                <li key={s.title} className="flex flex-col rounded-md border border-border p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <h3 className="text-base font-semibold">{s.title}</h3>
+                      <p className="mt-1 text-sm text-muted">{s.body}</p>
+                    </div>
+                  </div>
+                  {s.code && (
+                    <div className="mt-4">
+                      <CodeBlock>{s.code}</CodeBlock>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
+
+            <div className="rounded-md border border-border">
+              <div className="border-b border-border bg-canvas-subtle px-5 py-3">
+                <h3 className="text-base font-semibold">The rules that matter</h3>
+              </div>
+              <ul className="divide-y divide-border">
+                {rules.map((r) => (
+                  <li key={r} className="flex items-start gap-3 px-5 py-3 text-sm">
+                    <CheckCircleFill className="mt-0.5 shrink-0 text-success" />
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <ul className="divide-y divide-border">
-            {rules.map((r) => (
-              <li key={r} className="flex items-start gap-3 px-5 py-3 text-sm">
-                <CheckCircleFill className="mt-0.5 shrink-0 text-success" />
-                {r}
-              </li>
-            ))}
-          </ul>
         </section>
       </main>
 
